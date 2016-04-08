@@ -6,6 +6,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.sam_chordas.android.stockhawk.ui.MyStocksActivity;
+
 /**
  * Created by sam_chordas on 11/9/15.
  */
@@ -22,7 +24,7 @@ public class RecyclerViewItemClickListener implements RecyclerView.OnItemTouchLi
     public void onItemClick(View v, int position);
   }
 
-  public RecyclerViewItemClickListener(Context context, OnItemClickListener listener) {
+  public RecyclerViewItemClickListener(MyStocksActivity context, OnItemClickListener listener) {
     this.listener = listener;
     gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
       @Override public boolean onSingleTapUp(MotionEvent e) {

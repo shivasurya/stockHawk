@@ -42,7 +42,7 @@
             android:authorities="com.sam_chordas.android.stockhawk.data.QuoteProvider"
             android:exported="false" />
 
-        <activity android:name=".ui.DetailedStockActivity" />
+        <activity android:name="com.sam_chordas.android.stockhawk.ui.DetailActivity" />
 
         <receiver android:name=".widget.stockwidget">
             <intent-filter>
