@@ -76,90 +76,99 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         networkToast();
       }
     }
-    RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-    recyclerView.setLayoutManager(new LinearLayoutManager(this));
-    getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
-
-    mCursorAdapter = new QuoteCursorAdapter(this, null);
-    recyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
-            new RecyclerViewItemClickListener.OnItemClickListener() {
-              @Override public void onItemClick(View v, int position) {
-                //TODO:
-                // do something on item click
-                // do something on item click
-                Intent graphIntent = new Intent(mContext,com.sam_chordas.android.stockhawk.ui.DetailActivity.class);
-                mCursor.moveToPosition(position);
-                graphIntent.putExtra(getResources().getString(R.string.string_symbol), mCursor.getString(mCursor.getColumnIndex(getResources().getString(R.string.string_symbol))));
-                mContext.startActivity(graphIntent);
-
-              }
-            }));
-    recyclerView.setAdapter(mCursorAdapter);
-
-
-    FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-    fab.attachToRecyclerView(recyclerView);
-    fab.setOnClickListener(new View.OnClickListener() {
-      @Override public void onClick(View v) {
-        if (isConnected){
-          new MaterialDialog.Builder(mContext).title(R.string.symbol_search)
-              .content(R.string.content_test)
-              .inputType(InputType.TYPE_CLASS_TEXT)
-              .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
-                @Override public void onInput(MaterialDialog dialog, CharSequence input) {
-                  // On FAB click, receive user input. Make sure the stock doesn't already exist
-                  // in the DB and proceed accordingly
-                  Cursor c = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
-                      new String[] { QuoteColumns.SYMBOL }, QuoteColumns.SYMBOL + "= ?",
-                      new String[] { input.toString() }, null);
-                  if (c.getCount() != 0) {
-                    Toast toast =
-                        Toast.makeText(MyStocksActivity.this, "This stock is already saved!",
-                            Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
-                    toast.show();
-                    return;
-                  } else {
-                    // Add the stock to DB
-                    mServiceIntent.putExtra("tag", "add");
-                    mServiceIntent.putExtra("symbol", input.toString());
-                    startService(mServiceIntent);
-                  }
-                }
-              })
+    if(!isConnected){
+      new MaterialDialog.Builder(mContext).title(R.string.network)
+              .content(R.string.network_error)
               .show();
-        } else {
-          networkToast();
-        }
-
-      }
-    });
-
-    ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mCursorAdapter);
-    mItemTouchHelper = new ItemTouchHelper(callback);
-    mItemTouchHelper.attachToRecyclerView(recyclerView);
-
-    mTitle = getTitle();
-    if (isConnected){
-      long period = 3600L;
-      long flex = 10L;
-      String periodicTag = "periodic";
-
-      // create a periodic task to pull stocks once every hour after the app has been opened. This
-      // is so Widget data stays up to date.
-      PeriodicTask periodicTask = new PeriodicTask.Builder()
-          .setService(StockTaskService.class)
-          .setPeriod(period)
-          .setFlex(flex)
-          .setTag(periodicTag)
-          .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-          .setRequiresCharging(false)
-          .build();
-      // Schedule task with tag "periodic." This ensure that only the stocks present in the DB
-      // are updated.
-      GcmNetworkManager.getInstance(this).schedule(periodicTask);
     }
-  }
+      RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+      recyclerView.setLayoutManager(new LinearLayoutManager(this));
+      getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
+
+      mCursorAdapter = new QuoteCursorAdapter(this, null);
+      recyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
+              new RecyclerViewItemClickListener.OnItemClickListener() {
+                @Override
+                public void onItemClick(View v, int position) {
+                  //TODO:
+                  // do something on item click
+                  // do something on item click
+                  Intent graphIntent = new Intent(mContext, com.sam_chordas.android.stockhawk.ui.DetailActivity.class);
+                  mCursor.moveToPosition(position);
+                  graphIntent.putExtra(getResources().getString(R.string.string_symbol), mCursor.getString(mCursor.getColumnIndex(getResources().getString(R.string.string_symbol))));
+                  mContext.startActivity(graphIntent);
+
+                }
+              }));
+      recyclerView.setAdapter(mCursorAdapter);
+
+
+      FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+      fab.attachToRecyclerView(recyclerView);
+      fab.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          if (isConnected) {
+            new MaterialDialog.Builder(mContext).title(R.string.symbol_search)
+                    .content(R.string.content_test)
+                    .inputType(InputType.TYPE_CLASS_TEXT)
+                    .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+                      @Override
+                      public void onInput(MaterialDialog dialog, CharSequence input) {
+                        // On FAB click, receive user input. Make sure the stock doesn't already exist
+                        // in the DB and proceed accordingly
+                        Cursor c = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
+                                new String[]{QuoteColumns.SYMBOL}, QuoteColumns.SYMBOL + "= ?",
+                                new String[]{input.toString()}, null);
+                        if (c.getCount() != 0) {
+                          Toast toast =
+                                  Toast.makeText(MyStocksActivity.this, "This stock is already saved!",
+                                          Toast.LENGTH_LONG);
+                          toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
+                          toast.show();
+                          return;
+                        } else {
+                          // Add the stock to DB
+                          mServiceIntent.putExtra("tag", "add");
+                          mServiceIntent.putExtra("symbol", input.toString());
+                          startService(mServiceIntent);
+                        }
+                      }
+                    })
+                    .show();
+          } else {
+            networkToast();
+          }
+
+        }
+      });
+
+      ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mCursorAdapter);
+      mItemTouchHelper = new ItemTouchHelper(callback);
+      mItemTouchHelper.attachToRecyclerView(recyclerView);
+
+      mTitle = getTitle();
+      if (isConnected) {
+        long period = 3600L;
+        long flex = 10L;
+        String periodicTag = "periodic";
+
+        // create a periodic task to pull stocks once every hour after the app has been opened. This
+        // is so Widget data stays up to date.
+        PeriodicTask periodicTask = new PeriodicTask.Builder()
+                .setService(StockTaskService.class)
+                .setPeriod(period)
+                .setFlex(flex)
+                .setTag(periodicTag)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setRequiresCharging(false)
+                .build();
+        // Schedule task with tag "periodic." This ensure that only the stocks present in the DB
+        // are updated.
+        GcmNetworkManager.getInstance(this).schedule(periodicTask);
+      }
+    }
+
 
 
   @Override
