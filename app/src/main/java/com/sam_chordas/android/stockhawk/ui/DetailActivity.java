@@ -101,7 +101,7 @@ public class DetailActivity extends AppCompatActivity  {
                 mRenderer.addSeriesRenderer(renderer);
                 mRenderer.setMarginsColor(Color.argb(0x00, 0xff, 0x00, 0x00)); // transparent margins
                 mRenderer.setPanEnabled(false, false);
-                mRenderer.setYAxisMax(35);
+                mRenderer.setYAxisMax(100);
                 mRenderer.setYAxisMin(0);
                 mRenderer.setShowGrid(true); // we show the grid
                 GraphicalView chartView = ChartFactory.getLineChartView(getApplicationContext(), dataset, mRenderer);
